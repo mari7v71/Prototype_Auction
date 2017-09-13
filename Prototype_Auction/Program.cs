@@ -12,45 +12,34 @@ namespace Prototype_Auction
 {
     class Program
     {
+        TcpListener listener;
+        BiddingSystem biddingSystem;
+
         static void Main(string[] args)
         {
-            BiddingSystem biddingSystem = new BiddingSystem();
-            Thread acceptClientThread;
+            Program p = new Program();
+            p.Run();       
+        }
+
+        void Run()
+        {
+            biddingSystem = new BiddingSystem(); 
             Console.WriteLine("Starting server...");
 
+            Thread acceptClientThread;
+
             int port = 11000;
-            TcpListener listener = new TcpListener(IPAddress.Any, port);
+            listener = new TcpListener(IPAddress.Any, port);
             listener.Start();
 
-            ThreadStart acceptClientDelegate = new ThreadStart(AcceptClient(listener, biddingSystem: biddingSystem));
+            ThreadStart acceptClientDelegate = new ThreadStart(AcceptClient);
             acceptClientThread = new Thread(acceptClientDelegate);
             acceptClientThread.Start();
-
-            // this should be reimplemented using threads
-            
-
-
-            StreamWriter writer = new StreamWriter(stream, Encoding.ASCII) { AutoFlush = true };
-            StreamReader reader = new StreamReader(stream, Encoding.ASCII);
-
-            //while(true)
-            //{
-            //    string inputLine = "";
-
-            //    while (inputLine != null)
-            //    {
-            //        inputLine = reader.ReadLine();
-
-            //        //writer.WriteLine(AnswerGenerator(inputLine));
-            //        Console.WriteLine("Received: " + inputLine);
-            //    }
-            //    Console.WriteLine("Server saw disconnect from client.");
-            //}
 
             Console.ReadKey();
         }
 
-        static void AcceptClient(TcpListener listener, BiddingSystem biddingSystem)
+        void AcceptClient()
         {
             while(true)
             {

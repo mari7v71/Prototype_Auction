@@ -12,8 +12,8 @@ namespace Prototype_Auction
 {
     public class BiddingSystem
     {
-        //private List<NetworkStream> streams = new List<NetworkStream>();
-        private List<Thread> threads = new List<Thread>();
+        private List<NetworkStream> streams = new List<NetworkStream>();
+        //private List<Thread> threads = new List<Thread>();
         bool firstClientConnected = false;
         Goods goodsBeingSold;
 
@@ -29,6 +29,9 @@ namespace Prototype_Auction
         {
             Console.WriteLine("Bidding has started...");
             Console.WriteLine("Item: {0}, Starting Price: {1}", goods.Name, goods.StartingPrice.ToString("F"));
+            
+            
+            // Receive bids from clients
         }
 
         private void StartBidding()
@@ -38,6 +41,25 @@ namespace Prototype_Auction
                 // not implemented
             }
         }
+
+        private void ShareBiddingInfo()
+        {
+            foreach (var stream in streams)
+            {
+                StreamWriter writer = new StreamWriter(stream, Encoding.ASCII) { AutoFlush = true };
+                writer.WriteLine("New bid is: " + goodsBeingSold.CurrentPrice);
+            }
+        }
+
+        //private void ReceiveBiddingInfo()
+        //{
+        //    while (true)
+        //    {
+        //            StreamReader reader = new StreamReader(stream); // wrong approach
+                    
+                              
+        //    }     
+        //}
 
         private void GreetNewClient(NetworkStream clientToGreet)
         {
@@ -53,8 +75,10 @@ namespace Prototype_Auction
             if (firstClientConnected == false)
             {
                 InitializeBidding(testGoods);
+                firstClientConnected = true;
             }
 
+            Thread thread = new Thread(new ThreadStart(ReceiveBiddingInfo));
             GreetNewClient(stream);
         }
     }
